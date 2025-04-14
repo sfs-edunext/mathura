@@ -1,0 +1,142 @@
+
+(function ($) {
+    "use strict";
+
+
+    /*==================================================================
+    [ Focus Contact2 ]*/
+    $('.input100').each(function(){
+        $(this).on('blur', function(){
+            if($(this).val().trim() != "") {
+                $(this).addClass('has-val');
+            }
+            else {
+                $(this).removeClass('has-val');
+            }
+        })    
+    })
+  
+  
+    /*==================================================================
+    [ Validate ]*/
+    var input = $('.validate-input .input100');
+
+    $('.validate-form').on('submit',function(){
+        var check = true;
+
+        for(var i=0; i<input.length; i++) {
+            if(validate(input[i]) == false){
+                showValidate(input[i]);
+                check=false;
+            }
+        }
+
+        return check;
+    });
+
+
+    $('.validate-form .input100').each(function(){
+        $(this).focus(function(){
+           hideValidate(this);
+        });
+    });
+
+    function validate (input) {
+        if($(input).attr('type') == 'email' || $(input).attr('name') == 'email') {
+            if($(input).val().trim().match(/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{1,5}|[0-9]{1,3})(\]?)$/) == null) {
+                return false;
+            }
+        }
+        else {
+            if($(input).val().trim() == ''){
+                return false;
+            }
+        }
+    }
+
+    function showValidate(input) {
+        var thisAlert = $(input).parent();
+
+        $(thisAlert).addClass('alert-validate');
+    }
+
+    function hideValidate(input) {
+        var thisAlert = $(input).parent();
+
+        $(thisAlert).removeClass('alert-validate');
+    }
+    
+
+        $('#login-btn').click(function () {
+            $('.login-srn').hide();
+            $('.opt-srn, .back-btn').show();
+        });
+
+        $('#send-opt').click(function () {
+            $('.sms-show').show();
+        });
+        $('.back-btn').click(function () {
+            $(".forget_otp").hide();
+            (".reset_password").hide();
+            $('.login-srn, .gst-login-srn, .gst-login-srn').show().addClass('login-srn1');
+            $('.opt-srn, .back-btn, .back-btn, .gst-login-srn2, .forget-srn').hide();
+            alert
+        });
+
+        $('.forget-btn').click(function () {
+            $(".forget_otp").hide();
+            $('.login-srn, .gst-login-srn, .gst-login-srn2, .gst-usersign-srn2').hide();
+            $('.forget-srn, .forback-btn, .back-btn').show();
+        });
+
+        $('#otpbutton').click(function () {
+        $('.forget-srn').hide();
+        $('.forget_otp, .forback-btn, .back-btn').show();
+    });
+
+    $('#resetpassowrd').click(function () {
+        $('.forget_otp').hide();
+        $('.otp_password').hide();
+  $(".otp_password, .forback-btn, .back-btn").show();
+        // $('.reset_password, .forback-btn, .back-btn').show();
+    });
+
+    $('#verify_otp').click(function () {
+        // $('.forget_otp').hide();
+        $('.otp_password').hide();
+        $('.reset_password').hide();
+        // $(".otp_password, .forback-btn, .back-btn").show();
+        $('.reset_password, .forback-btn, .back-btn').show();
+    });
+
+        $('.forback-btn').click(function () {
+            $('.login-srn, .gst-login-srn').show().addClass('login-srn1');
+            $('.forget-srn, .forback-btn, .gst-usersign-srn2, .back-btn').hide();
+        });
+        
+	      $('#gust-log-btn').click(function () {
+				$('.gst-login-srn').hide();
+				$('.gst-login-srn2, .back-btn').show();
+			});
+
+			$('#send-opt').click(function () {
+				$('.sms-show').show();
+			});
+
+			$('#user-btn').click(function(){
+				$('.gst-login-srn2, .back-btn').show();
+				$('.gst-login-srn').hide();
+			});
+
+			$('#user-btn1').click(function(){
+				$('.gst-usersign-srn2').show();
+                $('.gst-login-srn').hide();
+			});
+
+
+    $('.guest-forback-btn').click(function () {
+        $('.gst-login-srn').show();
+        $('.forget-srn, .forback-btn, .gst-usersign-srn2, .back-btn').hide();
+    });
+
+})(jQuery);

@@ -1,0 +1,1473 @@
+document.addEventListener('DOMContentLoaded', function () {
+
+        $(document).ready(function () {
+//            initializeReadyFunctions();
+            $("#password").keydown(function (event) {
+                if (event.which == 13) {
+                    document.getElementById("user_login_btn").click();
+
+                }
+            });
+            $("#username").keydown(function (event) {
+                if (event.which == 13) {
+                    document.getElementById("user_login_btn").click();
+
+                }
+            });
+            $("#guestusername").keydown(function (event) {
+                if (event.which == 13) {
+                    document.getElementById("guest_login_btn").click();
+                }
+            });
+            $("#guestloginpassword").keydown(function (event) {
+                if (event.which == 13) {
+                    document.getElementById("guest_login_btn").click();
+                }
+            });
+
+            $('#user_login_btn').on('click', function () {
+                edu_onbodyload();
+                //show_processing_image(this);
+
+                if (validateFormValue()) {
+                    disablebuttonbyjq('savebtn');
+                    var username = window.document.f1.username.value;
+                    var password = window.document.f1.password.value;
+                    password =password.trim();
+                    if(password && password.includes(' ')){
+                        password =password.replaceAll(' ' ,'<')
+                    }
+
+                    var parameter = "username=" + username + "&password=" + encodeURIComponent(password);
+                    var url = "SignUp?" + parameter;
+                    $.ajax({
+                        url: url,
+                        dataType: 'text',
+                        type: 'post',
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function (p1) {
+                            edu_completebodyload();
+                            var j = eval('(' + p1 + ')');
+
+                            var message = j.status;
+                            var pwa = j.pwa;
+
+                            try {
+                                // if(pwa !== undefined || pwa !== null && pwa === true){
+                                    var abcus = j.abcus;
+                                    var abcpas = j.abcpas;
+                                    var live_uat_local = j.live_uat_local;
+                                    var dbname = j.dbname;
+                                var labeldata = j.labeldata;
+                                    localStorage.setItem("live_uat_local", live_uat_local);
+                                    localStorage.setItem("abcpas", abcpas);
+                                    localStorage.setItem("dbname", dbname);
+                                    localStorage.setItem("userDefineLabelData", labeldata);
+                                // }
+                            } catch (e) {
+                                console.log('Unable to get permission', e);
+
+                            }
+                            if (message == 'successful') {
+                                var homepage = j.homepage;
+                                window.location = homepage;
+                            } else if (message == 'hold') {
+                                var homepage = j.homepage;
+                                window.location = homepage;
+                            } else if (message == 'locked') {
+                                $('.login-page').show();
+                                $('.login-page').html('You have exceeded the maximum number of login attempts (5). This account has been temporarily locked.');
+                                enablebuttonbyjq('savebtn');
+                            } else if (message == 'lockwarning1') {
+                                $('.login-page').show();
+                                $('.login-page').html('Invalid Login, Only 2 Attempts left.');
+                                enablebuttonbyjq('savebtn');
+                            } else if (message == 'lockwarning2') {
+                                $('.login-page').show();
+                                $('.login-page').html('Invalid username or password. For your security, you have one more attempt before your account is temporarily locked. To reset your password, please use the Forgot Password option.');
+                                enablebuttonbyjq('savebtn');
+                            }
+                            else {
+                                $('.login-page').show();
+                                $('.login-page').html('Invalid Login! Please try again!');
+                                //alert("Invalid Login! Please try again!");
+                                enablebuttonbyjq('savebtn');
+                            }
+                        },
+                        error: function (error) {
+                            edu_completebodyload();
+                        }
+                    });
+                } else {
+                    edu_completebodyload();
+                }
+            });
+            $('#guest_login_btn').on('click', function () {
+//                show_processing_image(this);
+
+                if (validateFormValueByFormId('f2')) {
+                    disablebuttonbyjq('savebtn');
+                    var username = window.document.f2.guestusername.value;
+
+
+                    try {
+                        localStorage.setItem("username", username);
+
+                    } catch (e) {
+                        console.log('Unable to get permission', e);
+
+                    }
+
+                    var password = window.document.f2.guestloginpassword.value;
+                    password =password.trim();
+                    if(password && password.includes(' ')){
+                        password =password.replaceAll(' ' ,'<')
+                    }
+                    var parameter = "username=" + username + "&password=" + password;
+                    var url = "GuestSignUp?" + parameter;
+                    $.ajax({
+                        url: url,
+                        dataType: 'text',
+                        type: 'post',
+                        contentType: 'application/x-www-form-urlencoded',
+                        success: function (p1) {
+//                            hide_processing_image(this);
+
+                            var j = eval('(' + p1 + ')');
+                            var message = j.status;
+                            console.log('message' + j);
+                            if (message == 'successful') {
+                                var homepage = j.homepage;
+                                window.location = homepage;
+                            } else if (message == 'hold') {
+                                var homepage = j.homepage;
+                                window.location = homepage;
+                            }
+                            else {
+                                $('.login-page').show();
+                                $('.login-page').html('Invalid Login! Please try again!');
+                                //alert("Invalid Login! Please try again!");
+                                enablebuttonbyjq('savebtn');
+                            }
+                        },
+                        error: function (error) {
+                            alert(error);
+//                            hide_processing_image(this);
+                        }
+                    });
+
+                } else {
+//                    hide_processing_image(this);
+                }
+            });
+
+
+            /*
+                        $('#guest_new_login_btn').on('click', function () {
+            //                show_processing_image(this);
+
+                            if (validateFormValueByFormId('f2')) {
+                                disablebuttonbyjq('savebtn');
+                                var username = window.document.f2.guestusername.value;
+                                var password = window.document.f2.guestloginpassword.value;
+                                var parameter = "username=" + username + "&password=" + password;
+                                var url = "/GuestSignUp?" + parameter;
+                                $.ajax({
+                                    url: url,
+                                    dataType: 'text',
+                                    type: 'post',
+                                    contentType: 'application/x-www-form-urlencoded',
+                                    success: function (p1) {
+            //                            hide_processing_image(this);
+
+                                        var j = eval('(' + p1 + ')');
+                                        var message = j.status;
+                                        console.log('message'+j);
+                                        if (message == 'successful') {
+                                            var homepage = j.homepage;
+                                            window.location = homepage;
+                                        } else if (message == 'hold') {
+                                            var homepage = j.homepage;
+                                            window.location = homepage;
+                                        }
+                                        else {
+                                            $('.login-page').show();
+                                            $('.login-page').html('Invalid Login! Please try again!');
+                                            //alert("Invalid Login! Please try again!");
+                                            enablebuttonbyjq('savebtn');
+                                        }
+                                    },
+                                    error: function (error) {
+                                        alert(error);
+            //                            hide_processing_image(this);
+                                    }
+                                });
+
+                            } else {
+            //                    hide_processing_image(this);
+                            }
+                        });
+            */
+
+            $('#cafeteriaLoginPage').on('click', function () {
+                window.location="/CafeteriaLogin";
+            });
+        })
+
+
+        // pwa install banner functionality
+
+        let deferredPrompt;
+
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can install the PWA
+            showInstallPromotion();
+
+        });
+
+        function showInstallPromotion() {
+            let promotion1 = document.getElementById('pwaInstallBanner').style.display= "block";
+        }
+
+        function hideInstall(){
+            document.getElementById("pwaInstallBanner").style.display = "none"
+        }
+
+        $(".pwaPopUpcloseBtn").click(function(){
+            hideInstall()
+        });
+
+        const downloadButton = document.getElementById("pwaInstallButton")
+        downloadButton.addEventListener('click', (e) => {
+            // Hide the app provided install promotion
+            // Show the install prompt
+            hideInstall();
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+            });
+        });
+        // pwa install banner functionality
+
+
+    }
+)
+
+
+function validateForm() {
+
+    var userid = document.getElementById("userid").value;
+    if (userid == "") {
+        hideSuccessMessageAndshowErrorMessage("Kindly insert the User Name.");
+        return false;
+
+    }
+    hideErrorMessageAndshowSuccessMessage("A mail has been sent. Please check for further instructions. Click here to login.");
+    return true;
+}
+
+function formsubmitForgetLogin(path, currentpath) {
+    var r = confirm("Do you want to reset password ?")
+    if (r == true) {
+        if (validateForm) {
+            disablebuttonbyjq('savebtn');
+            var url = path + "?" + formValues();
+            posturl_forget(url, currentpath);
+            enablebuttonbyjq('savebtn');
+
+        }
+    }
+
+}
+
+function formValues() {
+
+    var parameters = '';
+
+    var elem = document.getElementById('frmMain').elements;
+    for (var i = 0; i < elem.length; i++) {
+        var elementname = elem[i].name;
+        var elementtype = elem[i].type;
+        var multiple = elem[i].multiple;
+        if (elementtype == 'checkbox' && elementname != '') {
+            if (elem[i].checked) {
+                elem[i].value = 1;
+            } else {
+                elem[i].value = 0;
+            }
+        }
+        if (elementtype == 'radio' && elementname != '') {
+            if (elem[i].checked) {
+                elem[i].value = elem[i].value;
+            } else {
+                elementname = '';
+                elem[i].value = 0;
+            }
+        }
+
+        if (multiple != undefined && multiple != '') {
+            parameters += elementname + "=" + getMultipleSelectBoxValue(elem[i]) + "&";
+        } else if (elementname != '') {
+            parameters += elementname + "=" + elem[i].value + "&";
+        }
+    }
+    if (parameters.length > 1) {
+        parameters = parameters.substring(0, parameters.length - 1);
+    }
+    return parameters;
+}
+
+
+function formValuesfav() {
+
+    var parameters = '';
+
+    var elem = document.getElementById('frmMain1').elements;
+    for (var i = 0; i < elem.length; i++) {
+        var elementname = elem[i].name;
+        var elementtype = elem[i].type;
+        var multiple = elem[i].multiple;
+        if (elementtype == 'checkbox' && elementname != '') {
+            if (elem[i].checked) {
+                elem[i].value = 1;
+            } else {
+                elem[i].value = 0;
+            }
+        }
+        if (elementtype == 'radio' && elementname != '') {
+            if (elem[i].checked) {
+                elem[i].value = elem[i].value;
+            } else {
+                elementname = '';
+                elem[i].value = 0;
+            }
+        }
+
+        if (multiple != undefined && multiple != '') {
+            parameters += elementname + "=" + getMultipleSelectBoxValue(elem[i]) + "&";
+        } else if (elementname != '') {
+            parameters += elementname + "=" + elem[i].value + "&";
+        }
+    }
+    if (parameters.length > 1) {
+        parameters += "favpath=" + encodeURIComponent(window.location.href);
+    }
+    if (parameters.length > 1) {
+        //parameters = parameters.substring(0, parameters.length - 1);
+    }
+
+    return parameters;
+}
+
+
+function formsubmitcreateguestuser(path, currentpath) {
+    if (guestuservalidateForm()) {
+        var r = confirm("Do you want to Create Guest User ?")
+        if (r == true) {
+            disablebuttonbyjq('savebtn');
+            var url = path + "?" + formValuesfav();
+            posturl_guest(url, currentpath);
+            enablebuttonbyjq('savebtn');
+
+        }
+    }
+
+}
+
+
+function showPass() {
+
+
+    var input = document.getElementById("password");
+    // console.log("input>>> " + input.type);
+
+    if (input.type === "password") {
+        input.type = "text";
+
+    } else {
+        input.type = "password";
+
+    }
+
+}
+
+
+function get_current_loading_div(div) {
+    return $(div).parent();
+}
+
+function guestuservalidateForm() {
+
+    var candidatename = document.getElementById("candidatename").value;
+    var admissionid = document.getElementById("admissionid").value;
+    var fathername = document.getElementById("fathername").value;
+    var emailid = document.getElementById("emailid").value;
+    var mobileno = document.getElementById("guest_mobileno").value;
+    var guestpassword = document.getElementById("guestpassword").value;
+    var address = document.getElementById("address").value;
+
+    if (candidatename == "") {
+        showErrorMessageDiv("Kindly insert the Candidate Name.");
+        return false;
+    }
+    if (admissionid == "" || admissionid == "-1") {
+        showErrorMessageDiv("Kindly insert the Class.");
+        return false;
+    }
+    if (fathername == "") {
+        showErrorMessageDiv("Kindly insert the Father Name.");
+        return false;
+    }
+    if (emailid == "") {
+        showErrorMessageDiv("Kindly insert the Email Id.");
+        return false;
+    }
+    if (mobileno == "") {
+        showErrorMessageDiv("Kindly insert the Mobile No.");
+        return false;
+    }
+    if (address == "") {
+        showErrorMessageDiv("Kindly insert the Address.");
+        return false;
+    }
+    if (guestpassword == "") {
+        showErrorMessageDiv("Kindly insert the Password.");
+        return false;
+    }
+    return true;
+}
+
+function posturl_forget(strURL, currentpath) {
+    var xmlHttp;
+    if (window.XMLHttpRequest) { // For Mozilla, Safari, ...
+        var xmlHttp = new XMLHttpRequest();
+    }
+    else if (window.ActiveXObject) { // For Internet Explorer
+        var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlHttp.open('POST', strURL, true);
+    xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+            forget_submitpage(xmlHttp.responseText, currentpath);
+        }
+    }
+    xmlHttp.send(strURL);
+}
+
+function posturl_guest(strURL, currentpath) {
+    var xmlHttp;
+    if (window.XMLHttpRequest) { // For Mozilla, Safari, ...
+        var xmlHttp = new XMLHttpRequest();
+    }
+    else if (window.ActiveXObject) { // For Internet Explorer
+        var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlHttp.open('POST', strURL, true);
+    xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4) {
+            forget_submitpage_guest(xmlHttp.responseText, currentpath);
+        }
+    }
+    xmlHttp.send(strURL);
+}
+
+function forget_submitpage(str, currentpath) {
+    if (str == 'successful') {
+        alert("A mail or sms has been sent. Please check for further instructions.");
+        window.location = currentpath;
+    } else {
+        showErrorMessageDivForget(str);
+        enablebuttonbyjq('savebtn');
+    }
+}
+
+function forget_submitpage_guest(str, currentpath) {
+    if (str == 'successful') {
+        alert("A mail or sms has been sent. Please check for further instructions.");
+        window.location = currentpath;
+    } else {
+        showErrorMessageDivGuest(str);
+        enablebuttonbyjq('savebtn');
+    }
+}
+
+
+function viewopen(str) {
+    window.location = str;
+}
+function openWindow(url) {
+    window.open(url, '_blank');
+}
+
+
+//    function spostRequest(strURL, parameter) {
+//        var xmlHttp;
+//        if (window.XMLHttpRequest) { // For Mozilla, Safari, ...
+//            var xmlHttp = new XMLHttpRequest();
+//        }
+//        else if (window.ActiveXObject) { // For Internet Explorer
+//            var xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+//        }
+//        xmlHttp.open('POST', strURL, true);
+//        xmlHttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//        xmlHttp.onreadystatechange = function () {
+//
+//            if (xmlHttp.readyState == 4) {
+//                supdatepage(xmlHttp.responseText);
+//            }
+//        }
+//        xmlHttp.send(parameter);
+//    }
+//
+//    function supdatepage(str) {
+//        var j = eval('(' + str + ')');
+//
+//        var message = j.status;
+//        if (message == 'successful') {
+//            var homepage = j.homepage;
+//            window.location = homepage;
+//        } else if (message == 'hold') {
+//            var homepage = j.homepage;
+//            window.location = homepage;
+//        }
+//        else {
+//            $('.login-page').show();
+//            $('.login-page').html('Invalid Login! Please try again!');
+//            //alert("Invalid Login! Please try again!");
+//            enablebuttonbyjq('savebtn');
+//        }
+//    }
+
+//    function call_guestlogin() {
+//        if (guestuservalidateForm()) {
+//            disablebuttonbyjq('savebtn');
+//            var username = window.document.f2.guestusername.value;
+//            var password = window.document.f2.guestloginpassword.value;
+//            var url = "GuestSignUp";
+//            var parameter = "username=" + username + "&password=" + password;
+//            spostRequest(url, parameter);
+//        }
+//
+//    }
+
+function hide_model() {
+    $('#modal-guest-signin').modal('hide');
+    $('.modal-backdrop').removeClass('in');
+}
+
+function edu_onbodyload() {
+    block_image($('body'));
+}
+
+function edu_completebodyload() {
+    un_block_image($('body'));
+}
+
+function show_processing_image(current_obj) {
+    var div = $(current_obj).parent();
+    block_image(div);
+}
+
+function block_image(div) {
+    $(div).block({
+        message: '<i class="icon-spinner9 spinner"></i>',
+        overlayCSS: {
+            backgroundColor: '#fff',
+            opacity: 0.8,
+            cursor: 'wait',
+            position: top
+        },
+        css: {
+            border: 0,
+            padding: 0,
+            backgroundColor: 'none',
+            position: top
+        }
+    });
+}
+
+function hide_processing_image(current_obj) {
+    var div = $(current_obj).parent();
+    un_block_image(div);
+}
+
+function un_block_image(div) {
+    $(div).unblock();
+}
+
+function validateFormValue() {
+    disablebuttonbyjq('savebtn');
+    var validate = true;
+    $('input,select').prop('disabled', false);
+    $("select.mandatoryvalue").each(function () {
+        var value = $(this).val(); //do something with
+
+        if (value == null || value == 'null' || value == '' || value == -1) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly select the " + title + ".";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $("input.mandatoryvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+        var classname = $(this).prop("class");
+        if (classname.indexOf("fw_attachment") != -1) {
+            var name = $(this).prop('name');
+            var filechange = name + "filechange";
+            var filechangeval = document.getElementById(filechange).value;
+            if (filechangeval != undefined || filechangeval != null || filechangeval != '') {
+                var column = "";
+                var columnval = "";
+                if (filechangeval == 1) {
+                    column = name + "__val";
+                    columnval = document.getElementById(column).value;
+                } else {
+                    column = name + "_oldfilepath";
+                    columnval = document.getElementById(column).value;
+                }
+                if (columnval == null || columnval == 'null' || columnval == '' || columnval == -1 || columnval == "{}") {
+                    var title = $(this).prop('title');
+                    if (!title || title.length == 0) {
+                        title = $(this).prop('name');
+                    }
+                    var message = "Kindly select the " + title + ".";
+                    $(this).focus();
+                    showErrorMessageDiv(message);
+                    validate = false;
+                    return false;
+                }
+            }
+        } else {
+            if (value == '') {
+                var title = $(this).prop('title');
+                if (!title || title.length == 0) {
+                    title = $(this).prop('name');
+                }
+                var message = "Kindly insert the " + title + ".";
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+    });
+
+
+    $("textarea.mandatoryvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+
+        var title = $(this).prop('title');
+        if (!title || title.length == 0) {
+            title = $(this).prop('name');
+        }
+        if ($(this).hasClass("ckeditor")) {
+            var id = $(this).prop('id');
+            if (!id || id.length == 0) {
+                id = $(this).prop('id');
+            }
+            var messageLength = CKEDITOR.instances[id].getData().replace(/<[^>]*>/gi, '').length;
+            if (!messageLength) {
+                var message = "Kindly insert the " + title + ".";
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        } else {
+            if (value == '') {
+
+                var message = "Kindly insert the " + title + ".";
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+    });
+
+
+    $(".filesize").each(function () {
+        var limitsize = $(this).prop('title');
+        if (limitsize == undefined || limitsize == '') {
+            limitsize = $(this).prop('name');
+        }
+        var file = $(this).prop('files')[0];
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var iFileSize = file.size; //do something with
+            var iConvert = (iFileSize / 1024).toFixed(2);
+
+            if (parseFloat(iConvert) > parseFloat(limitsize)) {
+                var message = "Attachment size is " + iConvert + " KB . Attachment size should be less than " + limitsize + " KB";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+
+    });
+
+    $(".file_size").each(function () {
+        var limitsize = $(this).prop('filesize');
+        if (limitsize == undefined) {
+            limitsize = $(this).attr('filesize');
+        }
+        var title = $(this).prop('title');
+        title = title && title.length > 0 ? title : 'Attachment';
+        var file = $(this).prop('files')[0];
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var iFileSize = file.size; //do something with
+            var iConvert = (iFileSize / 1024).toFixed(2);
+
+            if (parseFloat(iConvert) > parseFloat(limitsize)) {
+                var message = "The attached file size of the " + title + " is of " + iConvert + " KB, reduce the file size to " + limitsize + " KB before uploading."
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+
+    });
+
+
+    $("input.edu_range").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+        if (value != '') {
+            var min = $(this).prop('min');
+            var max = $(this).prop('max');
+            var title = $(this).prop('title');
+
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+
+            if (parseInt(min) > value || parseInt(max) < value) {
+                $(this).focus();
+                var message = "Kindly insert the value of '" + title + "' between " + min + " to " + max + ". ";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+
+
+        }
+    });
+
+    $("input.edu_maxvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+        if (value != '') {
+            var min = $(this).prop('min');
+            var title = $(this).prop('title');
+
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+
+            if (parseInt(min) > value) {
+                $(this).focus();
+                var message = "Kindly insert the value of '" + title + "' greater than " + min + ". ";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+
+
+        }
+    });
+
+
+    $(".fileext").each(function () {
+        var file = $(this).prop('files')[0];
+
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var extenstion = $(this).attr('ext');
+            if (extenstion != undefined && extenstion != '') {
+                console.log("extenstion[" + extenstion + "]");
+                var res = extenstion.split(",");
+                var ext = $(this).val().split('.').pop().toLowerCase();
+                if ($.inArray(ext, res) == -1) {
+                    var message = "The Attachment should be in " + extenstion + " format.";
+                    showErrorMessageDiv(message);
+                    validate = false;
+                    return false;
+                }
+            }
+        }
+    });
+
+
+    $(".date").each(function () {
+        var value = $(this).val(); //do something with
+        var re = /^\d{1,2}(\-|\/)\d{1,2}(\-|\/)\d{4}$/;
+        if (value.trim() != '' && !value.match(re)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            $(this).focus();
+            var message = "Kindly select the correct " + title + ". (dd-MM-yyyy)";
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".datetime").each(function () {
+        var value = $(this).val(); //do something with
+        var re = /^\d{1,2}(\-|\/)\d{1,2}(\-|\/)\d{4}\s*?\d{2}[- :.]\d{2}$/;
+        if (value.trim() != '' && !value.match(re)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly select the correct " + title + ".";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+
+    $(".numbervalue").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseInt(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Number value in '" + title + "'.";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".floatvalue").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseFloat(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Decimal or Number value in '" + title + "'.";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".time").each(function () {
+        var value = $(this).val();
+        var regex = /^(?:0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (value != '') {
+            if (regex.test(value)) {
+
+            } else {
+                $(this).focus();
+                showErrorMessageDiv("Invalid Time Format : " + value);
+                validate = false;
+                return false;
+            }
+        }
+    });
+
+    $(".pincode").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !(validatePincode(value))) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " should be 6 digits";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".mobileno").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseInt(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Number value in '" + title + "'.";
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+
+    $(".mlength").each(function () {
+        try{
+            var mobilelength = document.getElementById("mobilelength").value;
+            var disable_mobile_validation = document.getElementById("disable_mobile_validation").value;
+            console.log("mobilelength>>>>" + mobilelength);
+            var value = $(this).val().trim();
+            console.log("value>>>>" + value);
+
+            if (value.length > 0 && (value.length != mobilelength) && (disable_mobile_validation == 0)) {
+                var title = $(this).prop('title');
+                if (!title || title.length == 0) {
+                    title = $(this).prop('name');
+                }
+                var message = title + " is not valid";
+
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }catch (e) {
+            console.log("e>>> " + e);
+        }
+    });
+
+    $(".future_date_not_allowed").each(function () {
+        var dateString = $(this).val().trim();
+        var datearray = dateString.split("-");
+        var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+
+        var myDate = new Date(newdate);
+        var today = new Date();
+        if (myDate > today) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+
+    });
+
+    $(".dob_validation").each(function () {
+        var dateString = $(this).val().trim();
+        var datearray = dateString.split("-");
+        var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+        var myDate = new Date(newdate);
+
+        var previousDate = new Date();
+        previousDate.setFullYear(previousDate.getFullYear() - 1);
+
+        var today = new Date();
+
+        if (myDate < today && myDate > previousDate || myDate > today) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+
+    });
+
+
+    $(".emailid").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !validateEmail(value)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".aadhar").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !validateAadharNo(value)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $(".text_upper").each(function () {
+        var value = $(this).val(); //do something with
+        if (value) {
+            $(this).val(value.toUpperCase());
+        }
+    });
+
+    $(".text_lower").each(function () {
+        var value = $(this).val(); //do something with
+        if (value) {
+            $(this).val(value.toLowerCase());
+        }
+    });
+
+    if (!validate) {
+        enablebuttonbyjq("savebtn")
+        return false;
+
+    } else {
+        return true;
+    }
+
+}
+
+function disablebuttonbyjq(name) {
+
+    $("." + name).each(function () {
+        $(this).prop("disabled", true);
+    });
+
+}
+
+
+// using form id
+function validateFormValueByFormId(frmid) {
+    disablebuttonbyjq('savebtn');
+    var validate = true;
+    $('input,select').prop('disabled', false);
+    $('#' + frmid + " select.mandatoryvalue").each(function () {
+        var value = $(this).val(); //do something with
+
+        if (value == null || value == 'null' || value == '' || value == -1) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly select the " + title + ".";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " input.mandatoryvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value == '') {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly insert the " + title + ".";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+
+    $('#' + frmid + " textarea.mandatoryvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+
+        var title = $(this).prop('title');
+        if (!title || title.length == 0) {
+            title = $(this).prop('name');
+        }
+        if ($(this).hasClass("ckeditor")) {
+            var id = $(this).prop('id');
+            if (!id || id.length == 0) {
+                id = $(this).prop('id');
+            }
+            var messageLength = CKEDITOR.instances[id].getData().replace(/<[^>]*>/gi, '').length;
+            if (!messageLength) {
+                var message = "Kindly insert the " + title + ".";
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        } else {
+            if (value == '') {
+
+                var message = "Kindly insert the " + title + ".";
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+    });
+
+
+    $('#' + frmid + " .filesize").each(function () {
+        var limitsize = $(this).prop('title');
+        if (limitsize == undefined || limitsize == '') {
+            limitsize = $(this).prop('name');
+        }
+        var file = $(this).prop('files')[0];
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var iFileSize = file.size; //do something with
+            var iConvert = (iFileSize / 1024).toFixed(2);
+
+            if (parseFloat(iConvert) > parseFloat(limitsize)) {
+                var message = "Attachment size is " + iConvert + " KB . Attachment size should be less than " + limitsize + " KB";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+
+    });
+
+    $('#' + frmid + " .file_size").each(function () {
+        var limitsize = $(this).prop('filesize');
+        if (limitsize == undefined) {
+            limitsize = $(this).attr('filesize');
+        }
+        var title = $(this).prop('title');
+        title = title && title.length > 0 ? title : 'Attachment';
+        var file = $(this).prop('files')[0];
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var iFileSize = file.size; //do something with
+            var iConvert = (iFileSize / 1024).toFixed(2);
+
+            if (parseFloat(iConvert) > parseFloat(limitsize)) {
+                var message = "The attached file size of the " + title + " is of " + iConvert + " KB, reduce the file size to " + limitsize + " KB before uploading."
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }
+
+    });
+
+
+    $('#' + frmid + " input.edu_range").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+        if (value != '') {
+            var min = $(this).prop('min');
+            var max = $(this).prop('max');
+            var title = $(this).prop('title');
+
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+
+            if (parseInt(min) > value || parseInt(max) < value) {
+                $(this).focus();
+                var message = "Kindly insert the value of '" + title + "' between " + min + " to " + max + ". ";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+
+
+        }
+    });
+
+    $('#' + frmid + " input.edu_maxvalue").each(function () {
+        var value = $(this).val().trim(); //do something with
+
+        if (value != '') {
+            var min = $(this).prop('min');
+            var title = $(this).prop('title');
+
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+
+            if (parseInt(min) > value) {
+                $(this).focus();
+                var message = "Kindly insert the value of '" + title + "' greater than " + min + ". ";
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+
+
+        }
+    });
+
+
+    $('#' + frmid + " .fileext").each(function () {
+        var file = $(this).prop('files')[0];
+
+        if (file == NaN || file == undefined) {
+
+        } else {
+            var extenstion = $(this).attr('ext');
+            if (extenstion != undefined && extenstion != '') {
+                console.log("extenstion[" + extenstion + "]");
+                var res = extenstion.split(",");
+                var ext = $(this).val().split('.').pop().toLowerCase();
+                if ($.inArray(ext, res) == -1) {
+                    var message = "The Attachment should be in " + extenstion + " format.";
+                    showErrorMessageDiv(message);
+                    validate = false;
+                    return false;
+                }
+            }
+        }
+    });
+
+
+    $('#' + frmid + " .date").each(function () {
+        var value = $(this).val(); //do something with
+        var re = /^\d{1,2}(\-|\/)\d{1,2}(\-|\/)\d{4}$/;
+        if (value.trim() != '' && !value.match(re)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            $(this).focus();
+            var message = "Kindly select the correct " + title + ". (dd-MM-yyyy)";
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .datetime").each(function () {
+        var value = $(this).val(); //do something with
+        var re = /^\d{1,2}(\-|\/)\d{1,2}(\-|\/)\d{4}\s*?\d{2}[- :.]\d{2}$/;
+        if (value.trim() != '' && !value.match(re)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly select the correct " + title + ".";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+
+    $('#' + frmid + " .numbervalue").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseInt(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Number value in '" + title + "'.";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .floatvalue").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseFloat(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Decimal or Number value in '" + title + "'.";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .time").each(function () {
+        var value = $(this).val();
+        var regex = /^(?:0?[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (value != '') {
+            if (regex.test(value)) {
+
+            } else {
+                $(this).focus();
+                showErrorMessageDiv("Invalid Time Format : " + value);
+                validate = false;
+                return false;
+            }
+        }
+    });
+
+    $('#' + frmid + " .pincode").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !(validatePincode(value))) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " should be 6 digits";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .mobileno").each(function () {
+        var value = $(this).val();
+        if (value != '' && parseInt(value) != value) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = "Kindly fill the Number value in '" + title + "'.";
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+
+    $('#' + frmid + " .mlength").each(function () {
+        try{
+            var mobilelength = document.getElementById("mobilelength").value;
+            console.log("mobilelength>>>>" + mobilelength);
+            var value = $(this).val().trim();
+            console.log("value>>>>" + value);
+            if (value.length > 0 && (value.length != mobilelength)) {
+                var title = $(this).prop('title');
+                if (!title || title.length == 0) {
+                    title = $(this).prop('name');
+                }
+                var message = title + " is not valid";
+
+                $(this).focus();
+                showErrorMessageDiv(message);
+                validate = false;
+                return false;
+            }
+        }catch (e) {
+            console.log("e>>> " + e);
+        }
+    });
+
+    $('#' + frmid + " .emailid").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !validateEmail(value)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .aadhar").each(function () {
+        var value = $(this).val().trim(); //do something with
+        if (value.length > 0 && !validateAadharNo(value)) {
+            var title = $(this).prop('title');
+            if (!title || title.length == 0) {
+                title = $(this).prop('name');
+            }
+            var message = title + " is not valid";
+            $(this).focus();
+            showErrorMessageDiv(message);
+            validate = false;
+            return false;
+        }
+    });
+
+    $('#' + frmid + " .text_upper").each(function () {
+        var value = $(this).val(); //do something with
+        if (value) {
+            $(this).val(value.toUpperCase());
+        }
+    });
+
+    $('#' + frmid + " .text_lower").each(function () {
+        var value = $(this).val(); //do something with
+        if (value) {
+            $(this).val(value.toLowerCase());
+        }
+    });
+
+    if (!validate) {
+        enablebuttonbyjq("savebtn")
+        return false;
+
+    } else {
+        return true;
+    }
+
+}
+
+
+function showErrorMessageDiv(message) {
+    document.getElementById('errormessagediv').style.display = "block";
+    document.getElementById("errormessages").innerHTML = message;
+    enablebuttonbyjq('savebtn');
+    $("#errormessagediv").focus();
+
+}
+
+function showErrorMessageDivGuest(message) {
+    document.getElementById('errormessagediv').style.display = "block";
+    document.getElementById("errormessages").innerHTML = message;
+    enablebuttonbyjq('savebtn');
+    $("#errormessagediv").focus();
+
+}
+
+function showErrorMessageDivForget(message) {
+    document.getElementById('forgeterrormessagediv').style.display = "block";
+    document.getElementById("forgeterrormessages").innerHTML = message;
+    enablebuttonbyjq('savebtn');
+    $("#forgeterrormessagediv").focus();
+
+}
+
+
+function enablebuttonbyjq(name) {
+    $("." + name).each(function () {
+        $(this).removeProp("disabled")
+    });
+}
+
